@@ -1,4 +1,4 @@
-package com.example.a3dar_app.ui.screens
+package com.codewithfk.arlearner.ui.screens
 
 import android.view.MotionEvent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.codewithfk.arlearner.util.Utils
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
 import com.google.ar.core.TrackingFailureReason
@@ -25,14 +26,15 @@ import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
 
 @Composable
-fun ARScreen(navController: NavController, model: String){
+fun ARScreen(navController: NavController, model: String) {
+
     val engine = rememberEngine()
-    val modelLoader = rememberModelLoader(engine)
-    val materialLoader = rememberMaterialLoader(engine)
-    val cameraNode = rememberARCameraNode(engine)
+    val modelLoader = rememberModelLoader(engine = engine)
+    val materialLoader = rememberMaterialLoader(engine = engine)
+    val cameraNode = rememberARCameraNode(engine = engine)
     val childNodes = rememberNodes()
-    val view = rememberView(engine)
-    val collisionSystem = rememberCollisionSystem(view)
+    val view = rememberView(engine = engine)
+    val collisionSystem = rememberCollisionSystem(view = view)
     val planeRenderer = remember {
         mutableStateOf(true)
     }
@@ -40,9 +42,9 @@ fun ARScreen(navController: NavController, model: String){
         mutableListOf<ModelInstance>()
     }
     val trackingFailureReason = remember {
-        mutableStateOf<TrackingFailureReason>(null!!)
+        mutableStateOf<TrackingFailureReason?>(null)
     }
-    val frame = remember{
+    val frame = remember {
         mutableStateOf<Frame?>(null)
     }
 
@@ -57,7 +59,7 @@ fun ARScreen(navController: NavController, model: String){
         cameraNode = cameraNode,
         materialLoader = materialLoader,
         onTrackingFailureChanged = {
-            trackingFailureReason.value = it!!
+            trackingFailureReason.value = it
         },
         onSessionUpdated = { _, updatedFrame ->
             frame.value = updatedFrame
@@ -70,19 +72,28 @@ fun ARScreen(navController: NavController, model: String){
             config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
         },
         onGestureListener = rememberOnGestureListener(
-            onSingleTapConfirmed = {e: MotionEvent, node: Node? ->
-                if (node == null){
-                    val hitTestResult = frame.value?.hitTest(e.x,e.y)
-                    hitTestResult?.firstOrNull{
+            onSingleTapConfirmed = { e: MotionEvent, node: Node? ->
+                if (node == null) {
+                    val hitTestResult = frame.value?.hitTest(e.x, e.y)
+                    hitTestResult?.firstOrNull {
                         it.isValid(
                             depthPoint = false,
                             point = false
                         )
-                    }?.createAnchorOrNull()?.let{
-
+                    }?.createAnchorOrNull()?.let {
+                        val nodeModel = Utils.createAnchorNode(
+                            engine = engine,
+                            modelLoader = modelLoader,
+                            materialLoader = materialLoader,
+                            modelInstance = modelInstance,
+                            anchor = it,
+                            model = Utils.getModelForAlphabet(model)
+                        )
+                        childNodes += nodeModel
                     }
                 }
             }
         )
+
     )
 }

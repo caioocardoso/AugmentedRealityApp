@@ -7,12 +7,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.codewithfk.arlearner.ui.screens.ARScreen
 import com.example.a3dar_app.ui.navigation.ARScreen
 import com.example.a3dar_app.ui.navigation.AlphabetScreen
 import com.example.a3dar_app.ui.navigation.HomeScreen
@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<ARScreen> {
                             val alphabet = it.toRoute<ARScreen>().model
-
+                            ARScreen(navController = navController, model = alphabet)
                         }
                         composable<AlphabetScreen> {
                             AlphabetScreen(navController = navController)
